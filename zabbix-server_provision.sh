@@ -12,3 +12,5 @@ systemctl start zabbix-server
 sed -i -e 's/# php_value date\.timezone Europe\/Riga/php_value date\.timezone Europe\/Minsk/g' /etc/zabbix/zabbix_server.conf
 systemctl start httpd
 sed -i -e 's/#DocumentRoot "\/var\/www\/html"/DocumentRoot "\/usr\/share\/zabbix"/g' /etc/httpd/conf/httpd.conf
+
+
