@@ -86,7 +86,7 @@ echo $tid
 
 
 create_host() {
-curl -X POST -H 'Content-Type: application/json-rpc' -d "{ \"jsonrpc\": \"2.0\", \"method\": \"host.create\", \"params\": { \"host\": \"$HOST_NAME\", \"interfaces\": [ { \"type\": 1, \"main\": 1, \"useip\": 1, \"ip\": \"$IP\", \"dns\": \"\", \"port\": \"10050\" } ], \"groups\": [ { \"groupid\": \"$gid\" } ], \"templates\": [ { \"templateid\": \"$TEMPLATEID\" } ], \"inventory_mode\": 0 } , \"auth\": \"$AUTH_TOKEN\", \"id\": 1 }" $API
+curl -X POST -H 'Content-Type: application/json-rpc' -d "{ \"jsonrpc\": \"2.0\", \"method\": \"host.create\", \"params\": { \"host\": \"$HOST_NAME\", \"interfaces\": [ { \"type\": 1, \"main\": 1, \"useip\": 1, \"ip\": \"$IP\", \"dns\": \"\", \"port\": \"10050\" } ], \"groups\": [ { \"groupid\": \"$gid\" } ], \"templates\": [ { \"templateid\": \"$tid\" } ], \"inventory_mode\": 0 } , \"auth\": \"$AUTH_TOKEN\", \"id\": 1 }" $API
    }
 output=`echo $(create_host) |jq -r .result.hostids`
 echo $output
