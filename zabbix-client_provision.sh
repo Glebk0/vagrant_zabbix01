@@ -53,6 +53,9 @@ curl -X POST -H 'Content-Type: application/json-rpc' -d "{\"params\": {\"passwor
 AUTH_TOKEN=`echo $(authenticate)|jq -r .result`
 echo $AUTH_TOKEN
 
+
+
+
 create_group() {
 curl -X POST -H 'Content-Type: application/json-rpc' -d "{ \"jsonrpc\": \"2.0\", \"method\": \"hostgroup.create\", \"params\": { \"name\": \"$GROUP_NAME\"}, \"auth\": \"$AUTH_TOKEN\", \"id\": 1 }" $API
 }
@@ -65,6 +68,16 @@ fi
 
 gid=`cat /vagrant/gid |sed 's/[^0-9]*//g'`
 echo $gid
+
+
+create_template() {
+curl -X POST -H 'Content-Type: application/json-rpc' -d "{ \"jsonrpc\": \"2.0\", \"method\": \"template.create\", \"params\": { \"groups\":{ \"groupid\": \"$gid\"},}, \"auth\": \"$AUTH_TOKEN\", \"id\": 1 }" $API
+}
+TEMPLATEID=`echo $(create_group)|jq -r .result.templateids`
+echo $TEMPLATEID >/vagrant/tid
+tid=`cat /vagrant/tid |sed 's/[^0-9]*//g'`
+echo $tid
+
 
 create_host() {
 curl -X POST -H 'Content-Type: application/json-rpc' -d "{ \"jsonrpc\": \"2.0\", \"method\": \"host.create\", \"params\": { \"host\": \"$HOST_NAME\", \"interfaces\": [ { \"type\": 1, \"main\": 1, \"useip\": 1, \"ip\": \"$IP\", \"dns\": \"\", \"port\": \"10050\" } ], \"groups\": [ { \"groupid\": \"$gid\" } ], \"templates\": [ { \"templateid\": \"$TEMPLATEID\" } ], \"inventory_mode\": 0 } , \"auth\": \"$AUTH_TOKEN\", \"id\": 1 }" $API
