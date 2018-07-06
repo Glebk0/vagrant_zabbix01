@@ -1,10 +1,18 @@
 #!/bin/bash
+#variables block
 TOMCAT=apache-tomcat-7.0.88
 TOMCAT_WEBAPPS=$TOMCAT/webapps
 TOMCAT_CONFIG=$TOMCAT/conf/server.xml
 TOMCAT_START=$TOMCAT/bin/startup.sh
 TOMCAT_ARCHIVE=$TOMCAT.tar.gz
 TOMCAT_URL=http://ftp.byfly.by/pub/apache.org/tomcat/tomcat-7/v7.0.88/bin/$TOMCAT_ARCHIVE
+ZABBIX_USER='Admin'
+ZABBIX_PASS='zabbix'
+ZABBIX_SERVER='192.168.56.2' 
+API='http://192.168.56.2/api_jsonrpc.php'
+HOST_NAME=$(hostname)
+IP=`hostname -I| cut -d" " -f2`
+GROUP_NAME=CloudHosts
 
 # Installing java and tomcat
 if [ ! -f jdk-8u172-linux-x64.rpm ]; then 
@@ -22,6 +30,7 @@ tar -zxf $TOMCAT_ARCHIVE
 rm $TOMCAT_ARCHIVE
 rm jdk-8u172-linux-x64.rpm
 
+#installing apps and jmx-remote
 cp /vagrant/clusterjsp.war $TOMCAT_WEBAPPS
 cp /vagrant/tomcat-catalina-jmx-remote.jar $TOMCAT/lib
 
@@ -29,31 +38,20 @@ sed -i -e 's/<Listener className="org.apache.catalina.core.JasperListener"/<List
 
 $TOMCAT_START
 
-
+#installing zabbix agent
 
 yum install -y http://repo.zabbix.com/zabbix/3.4/rhel/7/x86_64/zabbix-release-3.4-2.el7.noarch.rpm 
 yum install -y zabbix-agent zabbix-sender zabbix-get jq
 sed -i -e 's/Server=127.0.0.1/Server=192.168.56.2/g' /etc/zabbix/zabbix_agentd.conf 
 sed -i -e 's/ServerActive=127.0.0.1/ServerActive=192.168.56.2/g' /etc/zabbix/zabbix_agentd.conf 
 
-
-ERROR='0'
-ZABBIX_USER='Admin'
-ZABBIX_PASS='zabbix'
-ZABBIX_SERVER='192.168.56.2' 
-API='http://192.168.56.2/api_jsonrpc.php'
-TEMPLATEID=10001 
-HOST_NAME=$(hostname)
-IP=`hostname -I| cut -d" " -f2`
-GROUP_NAME=CloudHosts
+#self register script
 
 authenticate() {
 curl -X POST -H 'Content-Type: application/json-rpc' -d "{\"params\": {\"password\": \"$ZABBIX_PASS\", \"user\": \"$ZABBIX_USER\"}, \"jsonrpc\":\"2.0\", \"method\": \"user.login\", \"id\": 1}" $API 
 }
 AUTH_TOKEN=`echo $(authenticate)|jq -r .result`
 echo $AUTH_TOKEN
-
-
 
 
 create_group() {
@@ -65,10 +63,8 @@ if [ ! -f /vagrant/gid ]; then
     echo $HOSTGROUPID >/vagrant/gid
 fi
 
-
 gid=`cat /vagrant/gid |sed 's/[^0-9]*//g'`
 echo $gid
-
 
 
 create_template() {
@@ -82,7 +78,6 @@ if [ ! -f /vagrant/tid ]; then
 fi
 tid=`cat /vagrant/tid |sed 's/[^0-9]*//g'`
 echo $tid
-
 
 
 create_host() {
