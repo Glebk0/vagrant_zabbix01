@@ -9,6 +9,7 @@ sed -i '/DBPassword=/s/^#*//g' /etc/zabbix/zabbix_server.conf
 sed -i '/DBHost=/s/^#*//g' /etc/zabbix/zabbix_server.conf
 sed -i -e 's/DBPassword=/DBPassword=zabbix/g' /etc/zabbix/zabbix_server.conf
 systemctl start zabbix-server
+cp /vagrant/zabbix.conf.php /etc/zabbix/web/
 sed -i -e 's/# php_value date\.timezone Europe\/Riga/php_value date\.timezone Europe\/Minsk/g' /etc/httpd/conf.d/zabbix.conf
 systemctl start httpd
 sed -i -e 's/#DocumentRoot "\/var\/www\/html"/DocumentRoot "\/usr\/share\/zabbix"/g' /etc/httpd/conf/httpd.conf
